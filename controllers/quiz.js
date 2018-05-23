@@ -208,5 +208,4 @@ exports.randomcheck = (req, res,next) => {
         });
     };
 };
-};
 
