@@ -156,56 +156,62 @@ exports.check = (req, res, next) => {
 
 exports.randomplay = (req,res,next) =>{
 
-    req.session.score = req.session.score || 0;
-    var answer = req.query.answer || "";
-
-    models.quiz.findAll()
-        .then(quiz => {
-            req.session.quiz = req.session.quiz || quiz;
-
-            while(quiz === 0){
-                var pos = Math.floor(Math.random()*req.session.quiz.length);
-                if (pos === quizzes.length) {pos--;}
-                quiz = req.session.quizzes[pos];
-            }
-            req.session.quiz[pos] = 0;
-
-            res.render('quizzes/random_play', {
-                quiz: quiz,
-                answer: answer,
-                score: req.session.score
+    if(req.session.resolved === undefined){
+        req.session.resolved = [];
+    };
+    Sequelize.Promise.resolve().then(() =>{
+        const whereOpt = {"id":{[Sequelize.Op.notIn]:req.session.resolved}};
+        return models.quiz.count({where: whereOpt}).then(count => {
+            let ran = Math.floor(Math.random()*count);
+            return models.quiz.findAll({
+                offset:ran,
+                limit:1,
+                where: whereOpt
+            }).then(quizzes =>{
+                return quizzes[0];
             });
+        }).catch(error => {
+            req.flash('error', 'Error deleting the Quiz: ' + error.message);
+            next(error);
         });
+    }).then(quiz =>{
+        let score = req.session.resolved.length;
+        if(quiz ===undefined){
+            delete req.session.resolved;
+            res.render('quizzes/random_nomore', {score});
+
+        }else{
+            res.render('quizzes/random_play', {
+                quiz, score
+            });
+        }
+
+    });
 };
+
 
 exports.randomcheck = (req, res,next) => {
 
-    const {quiz, query} = req;
+    if(req.session.randomPlay == undefined ) {
+        req.session.randomPlay = [];
+    }
+    const player_answer =  req.query.answer || "";
+    const quiz_Answer = req.quiz.answer;
+    var score = req.session.randomPlay.length;
+    var result = player_answer.toLowerCase().trim() === quiz_Answer.toLowerCase().trim();
 
-    const answer = query.answer || "";
-    const result = answer.toLowerCase().trim() === quiz.answer.toLowerCase().trim;
 
-    if (result) {
-        req.session.score++;
-        if (req.session.toBeResolved.length === 0) {
-            req.session.toBeResolved === undefined;
-            res.render('quizzes/random_nomore', {
-                score: req.session.score
-            })
-        } else {
-            res.render('quizzes/random_result', {
-                answer: answer,
-                score: req.session.score,
-                result: result
-            })
-        }
-    } else {
-        req.session.toBeResolved === undefined;
-        res.render('quizzes/random_result', {
-            answer: answer,
-            score: req.session.score,
-            result: result
-        });
-    };
+    if(result){
+        req.session.randomPlay.push(req.quiz.id) // Añade elementos al final del array.
+        score = req.session.randomPlay.length;
+    }
+
+    res.render('quizzes/random_result', {
+        score: score,
+        answer: player_answer,
+        result: result
+    });
+
 };
+
 
