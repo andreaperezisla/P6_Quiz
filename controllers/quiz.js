@@ -156,62 +156,57 @@ exports.check = (req, res, next) => {
 
 exports.randomplay = (req,res,next) =>{
 
-            if(req.session.resolved === undefined){
-                req.session.resolved = [];
-            };
-            const Op= Sequelize.Op;
-            const condicion = {'id': {[Op.notIn] : req.session.randomPlay}};
+    req.session.score = req.session.score || 0;
+    var answer = req.query.answer || "";
 
-            models.quiz.count({where:condicion})
-                .then( count => {
-                    if (count ===0)
-        {
-            let puntuacion = req.session.randomPlay.length;
-            delete req.session.randomPlay;
-            res.render('quizzes/random_nomore', {
-                puntuacion: puntuacion
-            });
-            req.session.randomPlay = [];
-        }else{
-                        return models.quiz.findAll({
-                            where:condicion,
-                            offset: Math.floor(Math.random() * count),
-                            limit:1
-                        })
-                            .then(quizzes => {
-                                return quizzes[0];
-                        });
-
-
-        }
-
-        })
+    models.quiz.findAll()
         .then(quiz => {
-            res.render('quizzes/random_play', {
-                quiz:quiz,
-            puntuacion:req.session.randomPlay.length;
-        });
-        })
-        .catch(error => next (error));
+            req.session.quiz = req.session.quiz || quiz;
 
-}
-
-exports.randomcheck = (req, res,next) =>{
-
-        let puntuacion =req.session.resolved.length;
-        const respuesta= req.query.answer;
-        const comparacion=respuesta.toLowerCase().trim()===req.quiz.answer.toLowerCase().trim();
-
-        if(respuesta.toLowerCase().trim()===req.quiz.answer.toLowerCase().trim()){
-            if(req.session.indexOf(req.quiz.id)===-1){
-                req.session.resolved.push(req.quiz.id);
-                puntuacion=req.session.resolved.length;
+            while(quiz === 0){
+                var pos = Math.floor(Math.random()*req.session.quiz.length);
+                if (pos === quizzes.length) {pos--;}
+                quiz = req.session.quizzes[pos];
             }
-        }else{
-            delete req.session.resolved;
-        }
+            req.session.quiz[pos] = 0;
 
-        res.render('quizzes/random_result', {
-            comparacion,puntuacion,respuesta
+            res.render('quizzes/random_play', {
+                quiz: quiz,
+                answer: answer,
+                score: req.session.score
+            });
         });
 };
+
+exports.randomcheck = (req, res,next) => {
+
+    const {quiz, query} = req;
+
+    const answer = query.answer || "";
+    const result = answer.toLowerCase().trim() === quiz.answer.toLowerCase().trim;
+
+    if (result) {
+        req.session.score++;
+        if (req.session.toBeResolved.length === 0) {
+            req.session.toBeResolved === undefined;
+            res.render('quizzes/random_nomore', {
+                score: req.session.score
+            })
+        } else {
+            res.render('quizzes/random_result', {
+                answer: answer,
+                score: req.session.score,
+                result: result
+            })
+        }
+    } else {
+        req.session.toBeResolved === undefined;
+        res.render('quizzes/random_result', {
+            answer: answer,
+            score: req.session.score,
+            result: result
+        });
+    };
+};
+};
+
