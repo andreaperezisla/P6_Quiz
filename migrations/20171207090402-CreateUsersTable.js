@@ -1,5 +1,8 @@
 'use strict';
 
+//una vez se crea el modelo de una BBDD, hay que crear su migracion
+//aqui decimos ya que password es un string
+
 module.exports = {
     up: function (queryInterface, Sequelize) {
         return queryInterface.createTable('users',
@@ -38,7 +41,7 @@ module.exports = {
                     allowNull: false
                 }
             },
-            {
+            {       //forzamos sincronizacion
                 sync: {force: true}
             }
         );

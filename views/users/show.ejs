@@ -17,6 +17,8 @@
 
 <% if (session.user) { %>
     <p>
+        <!--aqui configuramos la vista para que solo se muestren los botones edit y delete si eres el ADMINISTRADOR-->
+
         <% if (session.user.isAdmin || session.user.id === user.id) { %>
             <a href="/users/<%= user.id %>/edit">
                 <button type="button"> Edit</button>

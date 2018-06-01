@@ -11,11 +11,19 @@ const url = require('url');
 // 5 minutes.
 const maxIdleTime = 5*60*1000;
 
+//la sesion de login se construye sobre la sesion express que se maneja con la cookie sid, es la que identifica cada usuario
+//cada usuario tiene un sid unico, por eso sabe que usuario esta interaccionando con la aplicacion
+
+
 
 //
 // Middleware used to destroy the user's session if the inactivity time
 // has been exceeded.
 //
+
+//se expira la sesion-de-login cuando pasa un tiempo determinado
+//borra la sesion con req.session.user delete
+
 exports.deleteExpiredUserSession = (req, res, next) => {
 
     if (req.session.user ) { // There exista user's session
@@ -124,11 +132,20 @@ const authenticate = (login, password) => {
 // GET /session   -- Login form
 exports.new = (req, res, next) => {
 
+    //REDIR------IMPORTANTE
+    //ES UN PARAMETRO QUE SIRVE PARA VOLVER A LA PAGINA ANTERIOR AL LOG IN,
+    //GUARDA LA RUTA DE LA PAGINA DESDE DONDE SE INICIO LA AUTENTICACION.
+    // SE ENVIA COMO PARAMETRO OCULTO
+
+
+
     // Page to go/show after login:
     let redir = req.query.redir || url.parse(req.headers.referer || "/").path;
 
+        //REFERER ES UN CAMPO ESTANDAR DE LA CABECERA QUE TRAE LA RUTA DE LA PRIMITIVA QUE NOS ACABA DE LLEGAR (ES A LA QUE TENEMOS QUE VOLVER)
+
     // Do not go here, i.e. do not shown the login form again.
-    if (redir === '/session') {
+    if (redir === '/session') {  //PARA NO VOLVER A LA PAGINA LOGIN UNA Y OTRA VEZ
         redir = "/";
     }
 

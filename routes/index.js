@@ -6,6 +6,8 @@ const tipController = require('../controllers/tip');
 const userController = require('../controllers/user');
 const sessionController = require('../controllers/session');
 
+//aqui se importan los correspondientes controladores
+
 //-----------------------------------------------------------
 
 // autologout
@@ -53,6 +55,12 @@ router.get('/author', (req, res, next) => {
 
 
 // Autoload for routes using :quizId
+//el primer nombre es el nombre del parametro que va en la ruta, el segundo el middleware que vamos a instalar
+//Esto permite que todos los metodos podran usar quizId para buscar
+//todos los que lleven el parametro next no tendrán que buscar otra vez en la base de datos
+
+//hay que instalar la funcion load de usuarios para qeu cuando una de las rutas lleve el identificador de usuario, se nos precargue y lo tengamos disponible
+
 router.param('quizId', quizController.load);
 router.param('userId', userController.load);
 router.param('tipId',  tipController.load);
@@ -65,6 +73,8 @@ router.delete('/session', sessionController.destroy); // close sesion
 
 
 // Routes for the resource /users
+//tambien hay que crear las siete primitivas nuevas asociadas a los users
+
 router.get('/users',
     sessionController.loginRequired,
 	userController.index);
@@ -88,6 +98,7 @@ router.delete('/users/:userId(\\d+)',
     sessionController.adminOrMyselfRequired,
 	userController.destroy);
 
+//se relaciona un usuario con los quizzes de los que es autor
 router.get('/users/:userId(\\d+)/quizzes',
     sessionController.loginRequired,
     quizController.index);
@@ -104,10 +115,24 @@ router.get('/quizzes/new',
 router.post('/quizzes',
     sessionController.loginRequired,
 	quizController.create);
+
+//en create solo se pone /quizes porque queremos crear un recursos en esa direccion
+//se enviara al servidor la pregunta que se haya añadido en la ventana Add Question
+//el servidor responderá con una redireccion que obligan al cliente a redireccionar
+//es decir, a una nueva solicitud ya de tipo get que es el que le muestra la vista que queremos ver
+// si por ejemplo se ha creado la pregunta 6, se verá la vista de show question con la pregunta que se acaba de añadir
+
+
+//los formularios post generan el metodo de la primitiva que va a ir al servidor
+//Esta solicitud se enviara al pulsar el boton SAVE
+
+
 router.get('/quizzes/:quizId(\\d+)/edit',
     sessionController.loginRequired,
     quizController.adminOrAuthorRequired,
 	quizController.edit);
+//aqui en edit se mete un id concreto porque queremos editar un determinado
+
 router.put('/quizzes/:quizId(\\d+)',
     sessionController.loginRequired,
     quizController.adminOrAuthorRequired,
@@ -133,8 +158,17 @@ router.get('/quizzes/:quizId(\\d+)/check', quizController.check);
 router.get('/quizzes/:randomplay', quizController.randomplay);
 router.get('/quizzes/:randomcheck/:quizId(\\d+)', quizController.randomcheck);
 
+//dos primitivas de tipo get, consultamos informacion para play y para check
+//get tiene la ruta, el identificador del quiz y usa la funcion play
 
+//PUT Y DELETE UTILIZAN METHOD OVERRIDE, necesario porque HTML solo permite enviar solicitudes GET y POST
+//_method=DELETE envia una solicitud de DELETE
+//el method-override se instala como todos los demas y se mete en package.json
 
+//nombre de la accion del controlador --> quizController.play
+//POST, PUT Y DELETE NUNCA TIENEN UNA VISTA ASOCIADA
+
+//para tips solo se necesita un post ya que no va a tener ninguna vista asociada y se va a usar para actualizar algun tip en caso de que lo necesitemos
 
 router.post('/quizzes/:quizId(\\d+)/tips',
     sessionController.loginRequired,

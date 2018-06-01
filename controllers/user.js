@@ -3,7 +3,13 @@ const {models} = require("../models");
 
 const paginate = require('../helpers/paginate').paginate;
 
+//la lista de users va a estar paginada como la que creamos antes
+
+
 // Autoload the user with id equals to :userId
+//como muchos tienen identificador de usuario en la ruta, tiene funcion de autoload
+//esta funcion precarga ese usuario cuando en una ruta cualquiera aparece un identificador
+
 exports.load = (req, res, next, userId) => {
 
     models.user.findById(userId)
@@ -22,6 +28,7 @@ exports.load = (req, res, next, userId) => {
 
 // GET /users
 exports.index = (req, res, next) => {
+    //con la sentencia siguiente mira cuantos usuarios hay y comprueba si se necesita paginacion
 
     models.user.count()
     .then(count => {
@@ -72,6 +79,7 @@ exports.new = (req, res, next) => {
 };
 
 
+//A la accion CREATE se llega una vez se ha completado la peticion de _form
 // POST /users
 exports.create = (req, res, next) => {
 
@@ -113,12 +121,12 @@ exports.edit = (req, res, next) => {
     res.render('users/edit', {user});
 };
 
-
+//A la accion UPDATE se llega una vez se ha completado la peticion de _form
 // PUT /users/:userId
 exports.update = (req, res, next) => {
 
     const {user, body} = req;
-
+    //en body guarda los parametros asociados al user introducido en la peticion de edit (_form)
     // user.username  = body.user.username; // edition not allowed
     user.password = body.password;
 
@@ -144,6 +152,8 @@ exports.update = (req, res, next) => {
 
 // DELETE /users/:userId
 exports.destroy = (req, res, next) => {
+
+    //como hay precarga al llevar un identificador de usuario en la ruta, esta en req.users
 
     req.user.destroy()
     .then(() => {

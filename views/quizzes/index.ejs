@@ -1,4 +1,7 @@
 
+
+
+<!--Esto de aqui se hace para implementar un cajon de busqueda-->
 <div class="right">
     <form method="get" action="/quizzes">
         <input type="text" name="search" value="<%= locals.search || '' %>" placeholder="question to search" autocomplete="off" />
@@ -10,7 +13,10 @@
     <%= title || "Questions" %>:
 </h1>
 
+<!--Esto de aqui arriba permite poner Questions of pepe o Question si no se recibe ningun title-->
+
 <table>
+
     <% for (var i in quizzes) { %>
     <% var quiz = quizzes[i]; %>
     <tr>

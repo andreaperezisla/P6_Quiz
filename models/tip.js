@@ -1,5 +1,7 @@
 
 // Definition of the Tips model:
+//se crea nuevo modelo para las pistas que define una tabla tip que tiene dos tipos
+
 
 module.exports = function (sequelize, DataTypes) {
     return sequelize.define('tip',

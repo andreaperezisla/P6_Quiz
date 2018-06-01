@@ -19,6 +19,7 @@ exports.load = (req, res, next, tipId) => {
 
 
 // POST /quizzes/:quizId/tips
+//create es la unica accion, construye un objeto tip con el metodo build y tb tiene que meter el quiz al que esta sociado
 exports.create = (req, res, next) => {
     const authorId = req.session.user && req.session.user.id || 0;
     const tip = models.tip.build(
@@ -28,7 +29,7 @@ exports.create = (req, res, next) => {
             authorId :authorId
         });
 
-    tip.save()
+    tip.save()  //si se guarda correctamente, iriamos de vuelta a la vista desde la que hemos creado el tip
     .then(tip => {
         req.flash('success', 'Tip created successfully.');
         res.redirect("back");

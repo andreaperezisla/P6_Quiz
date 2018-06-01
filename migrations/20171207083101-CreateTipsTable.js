@@ -1,5 +1,7 @@
 'use strict';
 
+//como hemos creado un nuevo modelo, tenemos que crear la migracion y el seeder asociado si es que existe (seeder en este caso no)
+
 module.exports = {
     up: function (queryInterface, Sequelize) {
         return queryInterface.createTable(
@@ -12,7 +14,7 @@ module.exports = {
                     autoIncrement: true,
                     unique: true
                 },
-                quizId: {
+                quizId: {           //la clave externa de la relacion que va a identificar el quiz al que esta asociado este tip
                     type: Sequelize.INTEGER
                 },
                 text: {

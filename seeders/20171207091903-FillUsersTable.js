@@ -2,6 +2,9 @@
 
 var crypt = require('../helpers/crypt');
 
+//aqui ya definimos usuarios concretos con contraseñas concretas, por eso necesitamos un seeder
+
+
 
 module.exports = {
     up(queryInterface, Sequelize) {

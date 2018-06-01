@@ -1,5 +1,14 @@
 'use strict';
 
+
+//las migraciones permiten una gestion incremental y reversible de cambios en los modelos de datos utilizados
+//en sequelize es sequelize-cli
+//se generan con /node_modules ... migration:create --name CreateQuizzesTable , por ejemplo
+//el archivo tiene la fecha de creacion en el nombre, asi se harán por orden de creacion las migraciones
+//funcion up-- introduce el cambio que se produce en ese paso de diseño, como este es el primero, se crea la tabla de quizzes y la tabla de users
+//funcion down-- desahce el cambio introducido, borraria la tabla de las definiciones
+
+
 module.exports = {
     up(queryInterface, Sequelize) {
         return queryInterface.createTable(

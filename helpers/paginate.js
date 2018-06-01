@@ -1,5 +1,8 @@
 const urlm = require('url');
 
+//este archivo sirve para implementar paginacion en nuestra interfaz
+//si le damos a la pagina dos, es equivalente a hacer GET /quizzes?pageno=2
+//
 
 function addPagenoToUrl(url, pageno, _param_name) {
     const param_name = _param_name ? _param_name : "pageno";

@@ -37,6 +37,7 @@
         <% if (session.user) { %>
             <a href="/users/<%= session.user.id %>/quizzes">My Quizzes</a>
         <% } %>
+        <!--Esta condicion de arriba permite que salga un boton con MyQuizzes del autor que este loggeado-->
         <a href="/author">Author</a>
 
         <% if (session.user) { %>
@@ -48,6 +49,9 @@
     </nav>
 
     <section class="main" id="mainSection">
+
+
+<!--Aqui se generan los mensajes en html (se renderizan) en el caso de que haya algun mensaje --- viene de los mensajes flash-->
 
         <% if (messages.info) { %>
         <article id='flashinfo'>
@@ -84,6 +88,7 @@
 
         <%- body %>
 
+<!-- Aqui ponemos la paginacion, los botones para poder movernos por todos los quizzes, pero solo aparecera si existe paginate control dentro de locals-->
         <% if (locals.paginate_control) { %>
         <%- paginate_control %>
         <% } %>

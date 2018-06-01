@@ -21,6 +21,9 @@
     <% include ../tips/new %>
 <% } %>
 
+<!--Las vistas new e index de tips no tienen acciones asociadas porque ambas se renderizan dentro del show o del play-->
+<!--la vista de index es un bucle que muestra todos los tips en una lista-->
+
 <% var tips = quiz.tips; %>
 <% var quizId = quiz.id; %>
 <% var quizAuthorId = quiz.authorId; %>

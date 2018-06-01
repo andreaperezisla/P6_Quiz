@@ -3,6 +3,15 @@ const crypt = require('../helpers/crypt');
 
 // Definition of the User model:
 
+//Para usuarios se necesita una tabla "especial"
+//salt es un string que ayuda a aleatorizar una contraseña y proteger mejor los datos
+
+//en password, definimos un string pero lo vamos a encriptar
+//la funcion set nos permite ejecutar una funcion en el momento de definir el campo pasword
+//este funcion fijara el contenido de este campo
+//a salt le asigna un numero aleatorio, genera un numero grande que convierte en un string con el +""
+//y despues encripta el password con el this.salt
+
 module.exports = function (sequelize, DataTypes) {
     const User = sequelize.define('user', {
         username: {
@@ -27,6 +36,7 @@ module.exports = function (sequelize, DataTypes) {
             defaultValue: false
         }
     });
+        //esta funcion es un metodo accesible sobre los usuarios que comprueba si el password introducido es el correcto
 
     User.prototype.verifyPassword = function (password) {
         return crypt.encryptPassword(password, this.salt) === this.password;

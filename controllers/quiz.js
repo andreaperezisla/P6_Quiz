@@ -5,11 +5,21 @@ const {models} = require("../models");
 const paginate = require('../helpers/paginate').paginate;
 
 // Autoload the quiz with id equals to :quizId
-exports.load = (req, res, next, quizId) => {
 
+//HAY UN MIDDLEWARE PARA CADA UNA DE LAS PRIMITIVAS QUE PUEDEN LLEGAR A TRAVES DE  LA INTERFAZ, DE LAS SOLICITUDES QUE VAN A LLEGAR
+//index, show, .. tienen estructura de middleware con req y res como parametrs
+
+// en req se pueden acceder a parametros a traves de req.params o req.body o req.query
+// dependiendo de donde se encuentren los datos a los que queremos acceder
+
+
+//Autoload el quiz asociado a :quizId
+exports.load = (req, res, next, quizId) => {
+        //con el include, cada vez que se cargue un quiz, se tiene que cargar todos los tips asociados a ese quiz
+        //hay que cargar la relacion entre el quiz y el autor que esta como author
     models.quiz.findById(quizId, {
         include: [
-            {model: models.tip,
+            {model: models.tip,  //aqui cargan los tips asociados al quiz cargado
                 include: [{model: models.user, as: 'author'}]
             },
             {model: models.user, as: 'author'}
@@ -44,7 +54,7 @@ exports.adminOrAuthorRequired = (req, res, next) => {
 
 // GET /quizzes
 exports.index = (req, res, next) => {
-
+        //definimos countOptions, aqui meteremos el identificador de usuario
     let countOptions = {
         where: {}
     };
@@ -52,6 +62,8 @@ exports.index = (req, res, next) => {
     let title = "Questions";
 
     // Search:
+    //estos comandos sirven para poder buscar en la interfaz
+
     const search = req.query.search || '';
     if (search) {
         const search_like = "%" + search.replace(/ +/g,"%") + "%";
@@ -60,7 +72,7 @@ exports.index = (req, res, next) => {
     }
 
     // If there exists "req.user", then only the quizzes of that user are shown
-    if (req.user) {
+    if (req.user) { //este user solo existira si se ha invocado a la primitiva asociada a las questions of pepe (por ejemplo)
         countOptions.where.authorId = req.user.id;
         title = "Questions of " + req.user.username;
     }
@@ -69,6 +81,7 @@ exports.index = (req, res, next) => {
     .then(count => {
 
         // Pagination:
+        //aqui configuramos la paginacion para nuestra interfaz
 
         const items_per_page = 10;
 
@@ -88,10 +101,10 @@ exports.index = (req, res, next) => {
 
         return models.quiz.findAll(findOptions);
     })
-    .then(quizzes => {
+    .then(quizzes => {    //aqui se renderiza la vista y se pasn una serie de parametros, entre ellos, quizzes, que se introduce en un bucle for en la vista para mostrar todos los quizzes que hay en la base de datos
         res.render('quizzes/index.ejs', {
             quizzes, 
-            search,
+            search,     //todos los elementos que se muestren tienen que cumplir la condicion                     
             title
         });
     })
@@ -100,15 +113,19 @@ exports.index = (req, res, next) => {
 
 
 // GET /quizzes/:quizId
+//aqui ya no se tendra que buscar en la base de datos gracias a LOAD
 exports.show = (req, res, next) => {
 
     const {quiz} = req;
-
+    //se asigna req a la variable destructurada quiz
+    //al render se le pasa como parametro el objeto quiz que en la vista de show se puede ver que se utiliza para mostrar la pregunta y respuesta asociada a ese quiz
     res.render('quizzes/show', {quiz});
 };
 
 
 // GET /quizzes/new
+
+//aqui se crea una constante quiz y luego se renderiza la vista new pasandole los campos vacios porque ahi se meterán los valores que hemos metido nosotros en el formulario add
 exports.new = (req, res, next) => {
 
     const quiz = {
@@ -120,6 +137,8 @@ exports.new = (req, res, next) => {
 };
 
 // POST /quizzes/create
+//Crea un nuevo quiz en la base de datos al darle a SAVE en ADD QUESTION
+
 exports.create = (req, res, next) => {
 
     const {question, answer} = req.body;
@@ -151,6 +170,9 @@ exports.create = (req, res, next) => {
 
 
 // GET /quizzes/:quizId/edit
+//renderiza el objeto de edicion
+//AQUI YA NO SE BUSCA PORQUE YA SE HA HECHO EN LOAD Y EN TODOS LOS METODOS PARECIDOS A ESTE
+
 exports.edit = (req, res, next) => {
 
     const {quiz} = req;
@@ -160,6 +182,8 @@ exports.edit = (req, res, next) => {
 
 
 // PUT /quizzes/:quizId
+//si existe el quiz hacemos el res.redirect
+
 exports.update = (req, res, next) => {
 
     const {quiz, body} = req;
@@ -185,6 +209,7 @@ exports.update = (req, res, next) => {
 
 
 // DELETE /quizzes/:quizId
+
 exports.destroy = (req, res, next) => {
 
     req.quiz.destroy()
@@ -200,10 +225,11 @@ exports.destroy = (req, res, next) => {
 
 
 // GET /quizzes/:quizId/play
+//TAMBIEN SE SIMPLIFICA GRACIAS A LOAD
 exports.play = (req, res, next) => {
 
     const {quiz, query} = req;
-
+     //LAS COMILLAS DE AQUI ABAJO SIGNIFICA QUE SI NO EXISTE SE INTRODUCE UN STRING VACIO COMO PARAMETRO
     const answer = query.answer || '';
 
     res.render('quizzes/play', {
