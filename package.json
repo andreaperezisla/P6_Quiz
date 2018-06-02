@@ -3,7 +3,7 @@
   "version": "0.0.0",
   "private": true,
   "scripts": {
-    "start": "heroku local:start",
+    "start": "node ./bin/www",
     "super": "supervisor ./bin/www",   //ojo! heroku arranca el servidor en el puerto 5000
     "start_old": "node ./bin/www",
     "migrate_local": "sequelize db:migrate --url sqlite://$(pwd)/quiz.sqlite",
@@ -35,6 +35,7 @@
     "sequelize": "^4.37.9",         //SEQUELIZE ES EL ORM Y LA BBDD ES SQLITE3
     "sequelize-cli": "^4.0.0",
     "serve-favicon": "~2.4.5",
+    "sqlite3":"3.1.13",
     "supervisor": "^0.12.0"
   },
   "devDependencies": {
